@@ -7,7 +7,7 @@ defmodule Ueberauth.Strategy.LinkedIn do
 
   use Ueberauth.Strategy,
     uid_field: :id,
-    default_scope: "r_liteprofile r_emailaddress"
+    default_scope: "profile email"
 
   alias Ueberauth.Auth.Info
   alias Ueberauth.Auth.Credentials
@@ -19,7 +19,7 @@ defmodule Ueberauth.Strategy.LinkedIn do
   Handles initial request for LinkedIn authentication.
   """
   def handle_request!(conn) do
-    scopes = conn.params["scope"] || option(conn, :default_scope)
+    scopes = Application.get_env(:ueberauth, Ueberauth.Strategy.LinkedIn.OAuth, [scopes: "r_profile r_email"])[:scopes]
     state = conn.params["state"] || Base.encode64(:crypto.strong_rand_bytes(16))
 
     opts = [scope: scopes, state: state, redirect_uri: callback_url(conn)]
